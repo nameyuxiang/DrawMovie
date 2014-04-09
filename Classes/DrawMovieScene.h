@@ -12,7 +12,7 @@ public:
 	void drawLine(node *p1,node *p2);
 	void drawLines();
 	bool isTouchGetNode(node *sprite,CCTouch* touch,int tag);
-	void lineAnimate(node *sprite);
+	void lineRespond(node *sprite,int NumberOfLines);
 	//响应触屏动作
 	//重写触屏回调函数
 	virtual bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);

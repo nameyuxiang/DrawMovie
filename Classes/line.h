@@ -15,11 +15,11 @@ public:
 	static int beforeTag;
 
 	//带参数的构造函数完成了坐标的确定、图片的选取、amount自加、id、tag复制
-	line(int positionX, int positionY,int currentNodeTag,int beforeNodeTag);
+	line(int positionX, int positionY,int currentNodeTag,int beforeNodeTag,int NumberOfLines);
 	line(void);
 	~line(void);
 	void blink();
-	static line *create(node *p1,node *p2);
+	static line *create(node *p1,node *p2,int NumberOfLines);
 private:
 	int positionX;
 	int positionY;

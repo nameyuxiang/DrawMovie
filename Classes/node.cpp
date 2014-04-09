@@ -20,7 +20,7 @@ node::node(int positionX, int positionY)
 	this->positionY = positionY;
 	
 	this->setPosition(ccp(positionX,positionY));
-	this->initWithFile("jd.png");
+	this->initWithFile("jd1.png");
 	amount++;
 	id = amount;
 	tag = id;
