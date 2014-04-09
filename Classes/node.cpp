@@ -1,3 +1,4 @@
+#pragma once
 #include "node.h"
 USING_NS_CC;
 
@@ -29,3 +30,14 @@ node::node(int positionX, int positionY)
 void node::blink()
 {
 }
+int node::GetNodeX()
+{
+	return this->positionX;
+}
+
+
+int node::GetNodeY()
+{
+	return this->positionY;
+}
+

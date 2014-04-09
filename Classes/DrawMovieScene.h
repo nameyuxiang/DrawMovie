@@ -13,12 +13,14 @@ public:
 	void drawLines();
 	bool isTouchGetNode(node *sprite,CCTouch* touch,int tag);
 	void lineRespond(node *sprite,int NumberOfLines);
+	//判断是否为specialnode并使node响应
+	int DealNodeAndGetTag(node *Node,CCTouch* touch); 
 	//响应触屏动作
 	//重写触屏回调函数
 	virtual bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
 	virtual void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
 	virtual void ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
-	
+
 	//重写生命周期函数
 	virtual void onEnter();
 	virtual void onExit();
@@ -32,7 +34,7 @@ public:
 	void menuReInit(CCObject* pSender);
 	// a selector callback
 	void menuCloseCallback(CCObject* pSender);
-	
+
 	// implement the "static node()" method manually
 	CREATE_FUNC(DrawMovie);
 };

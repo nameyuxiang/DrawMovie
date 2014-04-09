@@ -1,5 +1,6 @@
 #pragma once
 #include"cocos2d.h"
+#define aHalfOfNumberOfSpecialNodes 1
 class node: public cocos2d::CCSprite
 {
 public:
@@ -13,7 +14,7 @@ public:
 	static bool start ;
 	static int beforeTag ;
 	static int currentTag ;
-
+	static int specialNodes[aHalfOfNumberOfSpecialNodes][2];
 	//带参数的构造函数完成了坐标的确定、图片的选取、amount自加、id、tag复制
 	node(int positionX, int positionY);
 	node(void);
@@ -26,6 +27,9 @@ private:
 	
 
 	
+public:
+	int GetNodeX();
+	int GetNodeY();
 };
 
 
