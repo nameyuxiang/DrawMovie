@@ -48,18 +48,30 @@ void shuzu(int a[6][6])
 
 void runAnimate(node *targetNode)
 {
-		CCAnimation* animation = CCAnimation::create();
-		animation->addSpriteFrameWithFileName("jd1.png");
-		animation->addSpriteFrameWithFileName("jd0.png");
+	CCAnimation* animation = CCAnimation::create();
+	animation->addSpriteFrameWithFileName("jd1.png");
+	animation->addSpriteFrameWithFileName("jd0.png");
 
-		animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
-		animation->setRestoreOriginalFrame(true);//是否回到第一帧
-		animation->setLoops(-1);//重复次数 （-1:无限循环）
+	animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
+	animation->setRestoreOriginalFrame(true);//是否回到第一帧
+	animation->setLoops(-1);//重复次数 （-1:无限循环）
 		
-		CCFiniteTimeAction * animate = CCAnimate::create(animation);
-		targetNode->runAction(animate);
+	CCFiniteTimeAction * animate = CCAnimate::create(animation);
+	targetNode->runAction(animate);
 }
-
+void LineChange(line *targetLine,int NumberOfLines)
+{		
+	CCAnimation* animation = CCAnimation::create();
+	if(NumberOfLines==1)
+		animation->addSpriteFrameWithFileName("jd1.png");
+	else if(NumberOfLines==0)
+		animation->addSpriteFrameWithFileName("jd0.png");
+	animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
+	animation->setRestoreOriginalFrame(false);//是否回到第一帧
+	animation->setLoops(11);//重复次数 （-1:无限循环）
+	CCFiniteTimeAction * animate = CCAnimate::create(animation);
+	targetLine->runAction(animate);
+}
 void DrawMovie::lineRespond(node *targetNode,int NumberOfLines )
 {
 	if(node::a[node::beforeTag][node::currentTag]>=0)
@@ -75,7 +87,7 @@ void DrawMovie::lineRespond(node *targetNode,int NumberOfLines )
 		}
 		int lineTag = beforeNodeTag*100+targetNodeTag;
 		line *targetLine = (line *)this->getChildByTag(lineTag);
-		targetLine->create(beforeNode,targetNode,NumberOfLines);
+		LineChange(targetLine,NumberOfLines);
 		line::beforeTag = lineTag;
 
 
@@ -223,7 +235,7 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 			if (isTouchGetNode(Node,touch,tag)&&tag!=node::beforeTag)
 			{   
 				node::currentTag = Node->tag;
-				lineRespond(Node,node::a[node::beforeTag][node::currentTag]);
+				lineRespond(Node,(node::a[node::beforeTag][node::currentTag]-1));
 				runAnimate(Node);
 //实现算法："如果不是第一个点，则当前点为i，触摸到点（j）的时候如果可连（a[i][j]==1）时，
 //将触摸点记录（即为i），a[i][j]=0,a[j][i]=0;触摸点开始闪，之前点停止闪烁"	
@@ -251,7 +263,6 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 void DrawMovie::ccTouchMoved(CCTouch* touch, CCEvent* event){
 	CCLOG("ccTouchMoved");
 	int tag ;
-	node *targetNode;
 	if(node::start==false)
 	{
 		for (tag = 1;tag<=node::amount;tag++)     
@@ -260,7 +271,7 @@ void DrawMovie::ccTouchMoved(CCTouch* touch, CCEvent* event){
 			if (isTouchGetNode(Node,touch,tag)&&tag!=node::beforeTag)
 			{  
 				node::currentTag = Node->tag;
-				lineRespond(Node,node::a[node::beforeTag][node::currentTag]);
+				lineRespond(Node,(node::a[node::beforeTag][node::currentTag]-1));
 				runAnimate(Node);
 
 //实现算法："如果不是第一个点，则当前点为i，触摸到点（j）的时候如果可连（a[i][j]==1）时，
