@@ -32,6 +32,8 @@ public:
 	static cocos2d::CCScene* scene();
 
 	void menuReInit(CCObject* pSender);
+	void menuGuess1(CCObject* pSender);
+	void menuGuess2(CCObject* pSender);
 	// a selector callback
 	void menuCloseCallback(CCObject* pSender);
 

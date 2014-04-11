@@ -187,17 +187,33 @@ bool DrawMovie::init()
 	CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
 	CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
 		// add "DrawMovie" splash screen"
-	CCMenuItemImage *pCloseItem = CCMenuItemImage::create(
+
+	CCMenuItemImage *pGuess1Item = CCMenuItemImage::create(
+										"MovieMenu1-1.png",
+										"MovieMenu1-2.png",
+										this,
+										menu_selector(DrawMovie::menuGuess1));
+	CCMenuItemImage *pGuess2Item = CCMenuItemImage::create(
+										"MovieMenu2-1.png",
+										"MovieMenu2-2.png",
+										this,
+										menu_selector(DrawMovie::menuGuess2));
+	CCMenuItemImage *pReInitItem = CCMenuItemImage::create(
 										"CloseNormal.png",
 										"CloseSelected.png",
 										this,
 										menu_selector(DrawMovie::menuReInit));
-	
-	pCloseItem->setPosition(ccp(origin.x + visibleSize.width - pCloseItem->getContentSize().width/2 ,
-								origin.y + pCloseItem->getContentSize().height/2));
-
+	pGuess1Item->setPosition(ccp(origin.x + visibleSize.width - pGuess1Item->getContentSize().width/2 ,
+								180));
+	pGuess2Item->setPosition(ccp(origin.x + visibleSize.width - pGuess2Item->getContentSize().width/2 ,
+								80));
+	pReInitItem->setPosition(ccp(origin.x + visibleSize.width - pReInitItem->getContentSize().width/2 ,
+								origin.y + pReInitItem->getContentSize().height/2));
+	CCMenu* pGuessMenu = CCMenu::create(pGuess1Item,pGuess2Item,NULL);
+	pGuessMenu->setPosition(CCPointZero);
+	this->addChild(pGuessMenu,1);
 	// create menu, it's an autorelease object
-	CCMenu* pMenu = CCMenu::create(pCloseItem, NULL);
+	CCMenu* pMenu = CCMenu::create(pReInitItem, NULL);
 	pMenu->setPosition(CCPointZero);
 	this->addChild(pMenu,1);
 	CCSprite* pSprite = CCSprite::create("up.png");
@@ -369,7 +385,12 @@ void DrawMovie::menuReInit(CCObject* pSender)
 				line *targetLine = (line *)this->getChildByTag(lineTag);
 				targetLine->stopAllActions();
 			}
-
+}
+void DrawMovie::menuGuess1(CCObject* pSender)
+{
+}
+void DrawMovie::menuGuess2(CCObject* pSender)
+{
 }
 void DrawMovie::menuCloseCallback(CCObject* pSender)
 {
