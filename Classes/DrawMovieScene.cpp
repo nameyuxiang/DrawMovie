@@ -63,8 +63,8 @@ void arrayInit(int a[6][6])
 void runAnimate(node *targetNode)
 {
 	CCAnimation* animation = CCAnimation::create();
-	animation->addSpriteFrameWithFileName("jd1.png");
-	animation->addSpriteFrameWithFileName("jd0.png");
+	animation->addSpriteFrameWithFileName("node1.png");
+	animation->addSpriteFrameWithFileName("node0.png");
 
 	animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
 	animation->setRestoreOriginalFrame(true);//是否回到第一帧
@@ -73,14 +73,32 @@ void runAnimate(node *targetNode)
 	CCFiniteTimeAction * animate = CCAnimate::create(animation);
 	targetNode->runAction(animate);
 }
+void NodeChange(node *targetNode,int color)
+{	
+	targetNode->color=color;
+	CCAnimation* animation = CCAnimation::create();
+	if(targetNode->color==2)
+		animation->addSpriteFrameWithFileName("node2.png");
+	else if(targetNode->color==0)
+		animation->addSpriteFrameWithFileName("node0.png");
+
+	animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
+	animation->setRestoreOriginalFrame(false);//是否回到第一帧
+	animation->setLoops(1);//重复次数 （-1:无限循环）
+	CCFiniteTimeAction * animate = CCAnimate::create(animation);
+	targetNode->runAction(animate);
+}
 //根据NumberOfLines 的值换图片
 void LineChange(line *targetLine,int NumberOfLines)
-{		
+{	
+	line::amount++;
 	CCAnimation* animation = CCAnimation::create();
-	if(NumberOfLines==1)
-		animation->addSpriteFrameWithFileName("jd1.png");
+	if(NumberOfLines==2)
+		animation->addSpriteFrameWithFileName("line2.png");
+	else if(NumberOfLines==1)
+		animation->addSpriteFrameWithFileName("line1.png");
 	else if(NumberOfLines==0)
-		animation->addSpriteFrameWithFileName("jd0.png");
+		animation->addSpriteFrameWithFileName("line0.png");
 	animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
 	animation->setRestoreOriginalFrame(false);//是否回到第一帧
 	animation->setLoops(1);//重复次数 （-1:无限循环）
@@ -126,6 +144,9 @@ int DrawMovie::DealNodeAndGetTag(node *Node,CCTouch* touch)
 	{
 		if(Node->tag==node::specialNodes[i][0]) 
 		{
+			//
+			NodeChange(Node,0);
+			Node->stopAllActions();
 			Node = (node*)this->getChildByTag(node::specialNodes[i][1]);
 			runAnimate(Node);
 			isSpecilNode = true;
@@ -175,10 +196,10 @@ bool DrawMovie::init()
 		return false;
 	}
 	this->strike=CCMotionStreak::create(1.0f,//尾巴持续的时间
-			16.0f,//尾巴大小
+			4.0f,//尾巴大小
 			16.0f,//图片的大小
 			ccc3(255,255,0),//颜色
-			"jd0.png"//使用的图片
+			"node0.png"//使用的图片
 			);
 		addChild(strike,1);
 		strike->setPosition(ccp(240,160));
@@ -206,7 +227,7 @@ bool DrawMovie::init()
 	pGuess1Item->setPosition(ccp(origin.x + visibleSize.width - pGuess1Item->getContentSize().width/2 ,
 								180));
 	pGuess2Item->setPosition(ccp(origin.x + visibleSize.width - pGuess2Item->getContentSize().width/2 ,
-								80));
+								120));
 	pReInitItem->setPosition(ccp(origin.x + visibleSize.width - pReInitItem->getContentSize().width/2 ,
 								origin.y + pReInitItem->getContentSize().height/2));
 	CCMenu* pGuessMenu = CCMenu::create(pGuess1Item,pGuess2Item,NULL);
@@ -216,12 +237,18 @@ bool DrawMovie::init()
 	CCMenu* pMenu = CCMenu::create(pReInitItem, NULL);
 	pMenu->setPosition(CCPointZero);
 	this->addChild(pMenu,1);
-	CCSprite* pSprite = CCSprite::create("up.png");
 
+	CCSprite* p1backSprite = CCSprite::create("background.png");
+	CCSprite* p2backSprite = CCSprite::create("background.png");
+	p1backSprite->setPosition(ccp(visibleSize.width/2 + origin.x-180, visibleSize.height/2 + origin.y));
+	p2backSprite->setPosition(ccp(visibleSize.width/2 + origin.x+180, visibleSize.height/2 + origin.y));
+	this->addChild(p1backSprite, 0);
+	this->addChild(p2backSprite, 0);
 	// position the sprite on the center of the screen
-	pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
 
 	// add the sprite as a child to this layer
+	CCSprite* pSprite = CCSprite::create("up.png");
+	pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
 	this->addChild(pSprite, 0);
 	node *node1 = new node(50,100);
 	node *node2 = new node(250,100);
@@ -229,11 +256,11 @@ bool DrawMovie::init()
 	node *node4 = new node(50,200);
 	node *node5 = new node(250,200);
 	
-	this->addChild(node1,0,node1->tag);
-	this->addChild(node2,0,node2->tag);
-	this->addChild(node3,0,node3->tag);
-	this->addChild(node4,0,node4->tag);
-	this->addChild(node5,0,node5->tag);
+	this->addChild(node1,1,node1->tag);
+	this->addChild(node2,1,node2->tag);
+	this->addChild(node3,1,node3->tag);
+	this->addChild(node4,1,node4->tag);
+	this->addChild(node5,1,node5->tag);
 	//创建lines
 	line **lines = (line**)new line;
 	int xLine = 0;
@@ -265,7 +292,6 @@ void DrawMovie::onExit(){
 /*用全局变量start，判断是否是第一个触摸点。
 如果不是第一个点，则当前点为i，触摸到点（j）的时候如果可连（a[i][j]==1）时，
 将触摸点记录（即为i），a[i][j]=0,a[j][i]=0;触摸点开始闪，之前点停止闪烁
-若成功触摸7个线段，所有点开始亮
 
 */
 bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
@@ -285,7 +311,7 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 				NodeTag = DealNodeAndGetTag(Node,touch);
 				node::start = false;
 				node::beforeTag = NodeTag;
-				return true;         
+				return true;
 			}
 		}
 	}
@@ -308,7 +334,11 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 					NodeTag = DealNodeAndGetTag(Node,touch);
 					node::count++;
 					node *bnode =(node*)this->getChildByTag(node::beforeTag);
-					bnode->stopAllActions(); 
+					for(int i = 0;i<aHalfOfNumberOfSpecialNodes;i++)
+						if(NodeTag!=node::specialNodes[i][0]&&NodeTag!=node::specialNodes[i][1])
+						{
+							bnode->stopAllActions(); 
+						}
 				//添加记录了line的beforeTag	
 					node::beforeTag = NodeTag;
 					return true;
@@ -316,13 +346,6 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 			}
 		}	
 	}
-	//成功后所有点闪
-	if(node::count == 7)
-		for(int i =1;i<=5;i++)
-		{
-			node *blinkNode = (node*)this->getChildByTag(i);
-			runAnimate(blinkNode);
-		}
 	return false;   
 }
 
@@ -355,12 +378,7 @@ void DrawMovie::ccTouchMoved(CCTouch* touch, CCEvent* event){
 			}
 		}
 	}
-	if(node::count == 7)
-		for(int i =1;i<=5;i++)
-		{
-			node *blinkNode = (node*)this->getChildByTag(i);
-			runAnimate(blinkNode);
-		}
+
 }
 
 void DrawMovie::ccTouchEnded(CCTouch* touch, CCEvent* event)
@@ -369,28 +387,57 @@ void DrawMovie::ccTouchEnded(CCTouch* touch, CCEvent* event)
 }
 void DrawMovie::menuReInit(CCObject* pSender)
 {
-	arrayInit(node::a);
-	for(int i =1;i<=5;i++)
-	{
-		node *Node = (node*)this->getChildByTag(i);
-		Node->stopAllActions();
-		node::start = true;
-	}
+
+	node::start = true;
 	node::count = 0;
-	for(int i = 1;i<=node::amount;i++)
-		for(int j=i+1;j<=node::amount;j++)
-			if(node::a[i][j]==1)
-			{
-				int lineTag = i*100+j;
-				line *targetLine = (line *)this->getChildByTag(lineTag);
-				targetLine->stopAllActions();
-			}
+
+	line::amount = 0;
+	line::count = 0;
+	line::beforeTag = 0;
+
+	arrayInit(node::a);
+	specialNodesInit(node::specialNodes);
+	if(node::currentTag!=0)
+	{
+		node *Node = (node*)this->getChildByTag(node::currentTag);
+		Node->stopAllActions();
+		node::currentTag = 0;
+		if(node::beforeTag!=0)
+		{
+			node::beforeTag = 0;
+			for(int i = 1;i<=node::amount;i++)
+				for(int j=i+1;j<=node::amount;j++)
+					if(node::a[i][j]>=1)
+					{
+						int lineTag = i*100+j;
+						line *targetLine = (line *)this->getChildByTag(lineTag);
+						LineChange(targetLine,node::a[i][j]);
+					}
+		}
+	}
+	node::amount = 0;
 }
 void DrawMovie::menuGuess1(CCObject* pSender)
 {
+	if(line::amount==15)
+	{
+		CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
+		CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
+		CCSprite *pFail = CCSprite::create("Fail.png");
+		pFail->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+		this->addChild(pFail,1);
+	}
 }
 void DrawMovie::menuGuess2(CCObject* pSender)
 {
+	if(line::amount==15)
+	{
+		CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
+		CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
+		CCSprite *pSuccess = CCSprite::create("Success.png");
+		pSuccess->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+		this->addChild(pSuccess,1);
+	}
 }
 void DrawMovie::menuCloseCallback(CCObject* pSender)
 {

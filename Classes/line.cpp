@@ -45,9 +45,9 @@ line::line(int positionX, int positionY,int beforeNodeTag,int currentNodeTag,int
 	this->beforeNodeTag = beforeNodeTag;
 	this->currentNodeTag = currentNodeTag;
 	this->setPosition(ccp(positionX,positionY));
-	if(NumberOfLines==0) this->initWithFile("jd0.png");
-	if(NumberOfLines==1) this->initWithFile("jd1.png");
-	if(NumberOfLines==2) this->initWithFile("jd2.png");
+	if(NumberOfLines==0) this->initWithFile("line0.png");
+	if(NumberOfLines==1) this->initWithFile("line1.png");
+	if(NumberOfLines==2) this->initWithFile("line2.png");
 	amount++;
 	id = amount;
 	tag = beforeNodeTag*100+currentNodeTag;
