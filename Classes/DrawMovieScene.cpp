@@ -397,10 +397,11 @@ void DrawMovie::menuReInit(CCObject* pSender)
 
 	arrayInit(node::a);
 	specialNodesInit(node::specialNodes);
-	if(node::currentTag!=0)
+	if(node::beforeTag!=0)
 	{
-		node *Node = (node*)this->getChildByTag(node::currentTag);
+		node *Node = (node*)this->getChildByTag(node::beforeTag);
 		Node->stopAllActions();
+		NodeChange(Node,Node->color);
 		node::currentTag = 0;
 		if(node::beforeTag!=0)
 		{
@@ -415,7 +416,6 @@ void DrawMovie::menuReInit(CCObject* pSender)
 					}
 		}
 	}
-	node::amount = 0;
 }
 void DrawMovie::menuGuess1(CCObject* pSender)
 {
