@@ -1,4 +1,3 @@
-
 #include "line.h"
 #include"node.h"
 #include <math.h>
@@ -52,7 +51,20 @@ line::line(int positionX, int positionY,int beforeNodeTag,int currentNodeTag,int
 	id = amount;
 	tag = beforeNodeTag*100+currentNodeTag;
 }
-
+void line::LineChange(int NumberOfLines)
+{	
+	amount ++;
+	CCAnimation* animation = CCAnimation::create();
+	if(NumberOfLines==1)
+		animation->addSpriteFrameWithFileName("line1.png");
+	else if(NumberOfLines==0)
+		animation->addSpriteFrameWithFileName("line0.png");
+	animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
+	animation->setRestoreOriginalFrame(false);//是否回到第一帧
+	animation->setLoops(1);//重复次数 （-1:无限循环）
+	CCFiniteTimeAction * animate = CCAnimate::create(animation);
+	this->runAction(animate);
+}
 
 void line::blink()
 {

@@ -15,20 +15,11 @@ int line::amount = 0;
 int line::count = 0;
 int line::beforeTag = 0;
 
+
 //初始化specialNodes
 int node::specialNodes[aHalfOfNumberOfSpecialNodes][2];
 
-void specialNodesInit(int specialNodes[aHalfOfNumberOfSpecialNodes][2])
-{
-	specialNodes[0][0] = 4;
-	specialNodes[0][1] = 5;
-}
 
-void specialNodesEnd(int specialNodes[aHalfOfNumberOfSpecialNodes][2])
-{
-	specialNodes[0][0] = 0;
-	specialNodes[0][1] = 0;
-}
 //用二维数组描述点与点之间的关系
 void arrayInit(int a[6][6])
 {
@@ -58,53 +49,8 @@ void arrayInit(int a[6][6])
 
 }
 
-//节点的闪烁动画
 
-void runAnimate(node *targetNode)
-{
-	CCAnimation* animation = CCAnimation::create();
-	animation->addSpriteFrameWithFileName("node1.png");
-	animation->addSpriteFrameWithFileName("node0.png");
 
-	animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
-	animation->setRestoreOriginalFrame(true);//是否回到第一帧
-	animation->setLoops(-1);//重复次数 （-1:无限循环）
-		
-	CCFiniteTimeAction * animate = CCAnimate::create(animation);
-	targetNode->runAction(animate);
-}
-void NodeChange(node *targetNode,int color)
-{	
-	targetNode->color=color;
-	CCAnimation* animation = CCAnimation::create();
-	if(targetNode->color==2)
-		animation->addSpriteFrameWithFileName("node2.png");
-	else if(targetNode->color==0)
-		animation->addSpriteFrameWithFileName("node0.png");
-
-	animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
-	animation->setRestoreOriginalFrame(false);//是否回到第一帧
-	animation->setLoops(1);//重复次数 （-1:无限循环）
-	CCFiniteTimeAction * animate = CCAnimate::create(animation);
-	targetNode->runAction(animate);
-}
-//根据NumberOfLines 的值换图片
-void LineChange(line *targetLine,int NumberOfLines)
-{	
-	line::amount++;
-	CCAnimation* animation = CCAnimation::create();
-	if(NumberOfLines==2)
-		animation->addSpriteFrameWithFileName("line2.png");
-	else if(NumberOfLines==1)
-		animation->addSpriteFrameWithFileName("line1.png");
-	else if(NumberOfLines==0)
-		animation->addSpriteFrameWithFileName("line0.png");
-	animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
-	animation->setRestoreOriginalFrame(false);//是否回到第一帧
-	animation->setLoops(1);//重复次数 （-1:无限循环）
-	CCFiniteTimeAction * animate = CCAnimate::create(animation);
-	targetLine->runAction(animate);
-}
 //线段接受参数并响应
 void DrawMovie::lineRespond(node *targetNode,int NumberOfLines )
 {
@@ -119,57 +65,54 @@ void DrawMovie::lineRespond(node *targetNode,int NumberOfLines )
 	}
 	int lineTag = beforeNodeTag*100+targetNodeTag;
 	line *targetLine = (line *)this->getChildByTag(lineTag);
-	LineChange(targetLine,NumberOfLines);
+	targetLine->LineChange(NumberOfLines);
 	line::beforeTag = lineTag;
-
-
-
 }
 //用矩形将精灵包起来，然后通过判断触摸的点的position是否在矩形内判断是否触碰到了精灵
-bool DrawMovie::isTouchGetNode(node *node,CCTouch* touch,int tag)
+bool isTouchGetNode(node *sprite,CCTouch* touch,int tag)
 {
 		
 		CCPoint touchPoint = touch->getLocationInView();     
-		touchPoint = CCDirector::sharedDirector()->convertToGL( touchPoint );         
-		CCRect rc1 = node->boundingBox(); 
+		touchPoint = CCDirector::sharedDirector()->convertToGL(touchPoint );         
+		CCRect rc1 = sprite->boundingBox(); 
 		if(rc1.containsPoint(touchPoint)) return true;
 		else return false;
 }
+
 //处理当前点，使它发光或跳跃
-int DrawMovie::DealNodeAndGetTag(node *Node,CCTouch* touch)
+int DrawMovie::DealNodeAndGetTag(node *Node,CCMotionStreak* strike)
 {
 	bool isSpecilNode = false;
 	int NodeTag = Node->tag;
 	for(int i = 0;i<aHalfOfNumberOfSpecialNodes;i++)
 	{
-		if(Node->tag==node::specialNodes[i][0]) 
+		if(Node->tag==node::specialNodes[i][0]||Node->tag==node::specialNodes[i][1]) 
 		{
-			//
-			NodeChange(Node,0);
+			int j = 1,otherj = 0;
+			isSpecilNode = true;
+			if(Node->tag==node::specialNodes[i][0])
+			{
+				j =0;
+				otherj = 1;
+			}
 			Node->stopAllActions();
-			Node = (node*)this->getChildByTag(node::specialNodes[i][1]);
-			runAnimate(Node);
-			isSpecilNode = true;
-			specialNodesEnd(node::specialNodes);
-			NodeTag = Node->tag;
+			Node->NodeChange(0);
+
+			node* otherNode = (node*)this->getChildByTag(node::specialNodes[i][otherj]);
+			otherNode->nodeRunAnimation();
+			node::specialNodesEnd(i);
+			otherNode->color = 0;
+			NodeTag = otherNode->tag;
+			strike->setPosition(ccp(otherNode->GetNodeX(),otherNode->GetNodeY()));
+			}
+		}
+		if(!isSpecilNode){
+			Node->nodeRunAnimation();
 			strike->setPosition(ccp(Node->GetNodeX(),Node->GetNodeY()));
 		}
-		else if(Node->tag==node::specialNodes[i][1]) 
-		{
-			Node = (node*)this->getChildByTag(node::specialNodes[i][0]);
-			runAnimate(Node);
-			isSpecilNode = true;
-			specialNodesEnd(node::specialNodes);
-			NodeTag = Node->tag;
-			strike->setPosition(ccp(Node->GetNodeX(),Node->GetNodeY()));
-		}
-	}
-	if(!isSpecilNode){
-		runAnimate(Node);
-		strike->setPosition(ccp(Node->GetNodeX(),Node->GetNodeY()));
-	}
-	return NodeTag;
+		return NodeTag;
 }
+
 CCScene* DrawMovie::scene()
 {
 	// 'scene' is an autorelease object
@@ -195,16 +138,15 @@ bool DrawMovie::init()
 	{
 		return false;
 	}
+	gameStart = true;
 	this->strike=CCMotionStreak::create(1.0f,//尾巴持续的时间
-			4.0f,//尾巴大小
-			16.0f,//图片的大小
-			ccc3(255,255,0),//颜色
-			"node0.png"//使用的图片
-			);
-		addChild(strike,1);
-		strike->setPosition(ccp(240,160));
+		4.0f,//尾巴大小
+		16.0f,//图片的大小
+		ccc3(255,255,0),//颜色
+		"node0.png"//使用的图片
+		);
 	arrayInit(node::a);
-	specialNodesInit(node::specialNodes);
+	node::specialNodesInit();
 	CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
 	CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
 		// add "DrawMovie" splash screen"
@@ -277,8 +219,9 @@ bool DrawMovie::init()
 	
 	return true;
 }
+
 void DrawMovie::onEnter(){
-	
+
 	CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this,0,false);
 	CCLayer::onEnter();
 }
@@ -298,17 +241,24 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 {
 	
 	CCLOG("ccTouchBegan");
+	strike->setPosition(touch->getLocation());
+	if(gameStart==true)
+	{
+		addChild(strike,1);
+		gameStart = false;
+	}
 	int NodeTag = 1;
 	CCPoint point = touch->getLocation();
 	int tag =0;
 	if(node::start==true)
 	{
+		
 		for (tag = 1;tag<=node::amount;tag++)     
 		{   
 			node* Node= (node*)this->getChildByTag(tag);   
 			if (isTouchGetNode(Node,touch,tag))
 			{   
-				NodeTag = DealNodeAndGetTag(Node,touch);
+				NodeTag = DealNodeAndGetTag(Node,strike);
 				node::start = false;
 				node::beforeTag = NodeTag;
 				return true;
@@ -331,13 +281,14 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 					node::a[node::beforeTag][node::currentTag]--;
 					node::a[node::currentTag][node::beforeTag]--;
 
-					NodeTag = DealNodeAndGetTag(Node,touch);
+					NodeTag = DealNodeAndGetTag(Node,strike);
 					node::count++;
 					node *bnode =(node*)this->getChildByTag(node::beforeTag);
 					for(int i = 0;i<aHalfOfNumberOfSpecialNodes;i++)
 						if(NodeTag!=node::specialNodes[i][0]&&NodeTag!=node::specialNodes[i][1])
 						{
 							bnode->stopAllActions(); 
+							bnode->NodeChange(bnode->color);
 						}
 				//添加记录了line的beforeTag	
 					node::beforeTag = NodeTag;
@@ -369,10 +320,11 @@ void DrawMovie::ccTouchMoved(CCTouch* touch, CCEvent* event){
 				//将触摸点记录（即为i），a[i][j]=0,a[j][i]=0;触摸点开始闪，之前点停止闪烁"
 					node::a[node::beforeTag][node::currentTag]--;
 					node::a[node::currentTag][node::beforeTag]--;
-					NodeTag = DealNodeAndGetTag(Node,touch);
+					NodeTag = DealNodeAndGetTag(Node,strike);
 					node::count++;
 					node *bnode =(node*)this->getChildByTag(node::beforeTag);
 					bnode->stopAllActions();
+					bnode->NodeChange(bnode->color);
 					node::beforeTag = NodeTag;
 				}
 			}
@@ -387,7 +339,6 @@ void DrawMovie::ccTouchEnded(CCTouch* touch, CCEvent* event)
 }
 void DrawMovie::menuReInit(CCObject* pSender)
 {
-
 	node::start = true;
 	node::count = 0;
 
@@ -396,12 +347,12 @@ void DrawMovie::menuReInit(CCObject* pSender)
 	line::beforeTag = 0;
 
 	arrayInit(node::a);
-	specialNodesInit(node::specialNodes);
+	node::specialNodesInit();
 	if(node::beforeTag!=0)
 	{
+		//把之前闪烁点初始化
 		node *Node = (node*)this->getChildByTag(node::beforeTag);
 		Node->stopAllActions();
-		NodeChange(Node,Node->color);
 		node::currentTag = 0;
 		if(node::beforeTag!=0)
 		{
@@ -412,8 +363,14 @@ void DrawMovie::menuReInit(CCObject* pSender)
 					{
 						int lineTag = i*100+j;
 						line *targetLine = (line *)this->getChildByTag(lineTag);
-						LineChange(targetLine,node::a[i][j]);
+						targetLine->LineChange(node::a[i][j]);
 					}
+		}
+		//把所有点初始化
+		for(int nodeTag = 1;nodeTag<=node::amount;nodeTag++)
+		{
+			node *Node = (node*)getChildByTag(nodeTag);
+			Node->initNode();
 		}
 	}
 }

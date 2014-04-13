@@ -19,17 +19,18 @@ public:
 	node(int positionX, int positionY);
 	node(void);
 	~node(void);
-	void blink();
 private:
 	int positionX;
 	int positionY;
 
-	
 
 	
 public:
 	int GetNodeX();
 	int GetNodeY();
+	void initNode();
+	void nodeRunAnimation();
+	void static specialNodesInit();
+	void static specialNodesEnd(int i);
+	void NodeChange(int color);
 };
-
-
