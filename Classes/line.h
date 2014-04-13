@@ -20,6 +20,8 @@ public:
 	~line(void);
 	void blink();
 	static line *create(node *p1,node *p2,int NumberOfLines);
+	//根据NumberOfLines 的值换图片
+	void LineChange(int NumberOfLines);
 private:
 	int positionX;
 	int positionY;

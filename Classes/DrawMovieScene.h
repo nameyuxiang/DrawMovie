@@ -2,19 +2,16 @@
 #define __HELLOWORLD_SCENE_H__
 #include "cocos2d.h"
 #include "node.h"
+
 USING_NS_CC;
 class DrawMovie : public cocos2d::CCLayer
 {
 public:
 	//声明拖尾类
+	bool gameStart = true;
 	CCMotionStreak* strike;
-	//划线函数
-	void drawLine(node *p1,node *p2);
-	void drawLines();
-	bool isTouchGetNode(node *sprite,CCTouch* touch,int tag);
+	int DealNodeAndGetTag(node *Node,CCMotionStreak* strike);
 	void lineRespond(node *sprite,int NumberOfLines);
-	//判断是否为specialnode并使node响应
-	int DealNodeAndGetTag(node *Node,CCTouch* touch); 
 	//响应触屏动作
 	//重写触屏回调函数
 	virtual bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
