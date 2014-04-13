@@ -59,6 +59,8 @@ void line::LineChange(int NumberOfLines)
 		animation->addSpriteFrameWithFileName("line1.png");
 	else if(NumberOfLines==0)
 		animation->addSpriteFrameWithFileName("line0.png");
+	else if(NumberOfLines == 2)
+		animation->addSpriteFrameWithFileName("line2.png");
 	animation->setDelayPerUnit(2.8f / 14.0f);//必须设置否则不会动态播放
 	animation->setRestoreOriginalFrame(false);//是否回到第一帧
 	animation->setLoops(1);//重复次数 （-1:无限循环）

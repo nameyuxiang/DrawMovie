@@ -86,6 +86,7 @@ int DrawMovie::DealNodeAndGetTag(node *Node,CCMotionStreak* strike)
 	int NodeTag = Node->tag;
 	for(int i = 0;i<aHalfOfNumberOfSpecialNodes;i++)
 	{
+		//判断是否是specialnode
 		if(Node->tag==node::specialNodes[i][0]||Node->tag==node::specialNodes[i][1]) 
 		{
 			int j = 1,otherj = 0;
@@ -139,7 +140,7 @@ bool DrawMovie::init()
 		return false;
 	}
 	gameStart = true;
-	this->strike=CCMotionStreak::create(1.0f,//尾巴持续的时间
+	this->strike=CCMotionStreak::create(5.0f,//尾巴持续的时间
 		4.0f,//尾巴大小
 		16.0f,//图片的大小
 		ccc3(255,255,0),//颜色
@@ -295,6 +296,7 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 					return true;
 				}
 			}
+
 		}	
 	}
 	return false;   
@@ -345,7 +347,12 @@ void DrawMovie::menuReInit(CCObject* pSender)
 	line::amount = 0;
 	line::count = 0;
 	line::beforeTag = 0;
-
+	this->strike=CCMotionStreak::create(5.0f,//尾巴持续的时间
+		4.0f,//尾巴大小
+		16.0f,//图片的大小
+		ccc3(255,255,0),//颜色
+		"node0.png"//使用的图片
+		);
 	arrayInit(node::a);
 	node::specialNodesInit();
 	if(node::beforeTag!=0)

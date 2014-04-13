@@ -39,7 +39,7 @@ void node::initNode()
 		else
 		{
 			color = 0;
-		}	
+		}
 	}
 	if(color==0) this->initWithFile("node0.png");
 	if(color==2) this->initWithFile("node2.png");
