@@ -80,7 +80,7 @@ bool isTouchGetNode(node *sprite,CCTouch* touch,int tag)
 }
 
 //处理当前点，使它发光或跳跃
-int DrawMovie::DealNodeAndGetTag(node *Node,CCMotionStreak* strike)
+int DrawMovie::DealNodeAndGetTag(node *Node)
 {
 	bool isSpecilNode = false;
 	int NodeTag = Node->tag;
@@ -104,12 +104,10 @@ int DrawMovie::DealNodeAndGetTag(node *Node,CCMotionStreak* strike)
 			node::specialNodesEnd(i);
 			otherNode->color = 0;
 			NodeTag = otherNode->tag;
-			strike->setPosition(ccp(otherNode->GetNodeX(),otherNode->GetNodeY()));
 			}
 		}
 		if(!isSpecilNode){
 			Node->nodeRunAnimation();
-			strike->setPosition(ccp(Node->GetNodeX(),Node->GetNodeY()));
 		}
 		return NodeTag;
 }
@@ -140,12 +138,7 @@ bool DrawMovie::init()
 		return false;
 	}
 	gameStart = true;
-	this->strike=CCMotionStreak::create(5.0f,//尾巴持续的时间
-		4.0f,//尾巴大小
-		16.0f,//图片的大小
-		ccc3(255,255,0),//颜色
-		"node0.png"//使用的图片
-		);
+
 	arrayInit(node::a);
 	node::specialNodesInit();
 	CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
@@ -242,10 +235,9 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 {
 	
 	CCLOG("ccTouchBegan");
-	strike->setPosition(touch->getLocation());
+
 	if(gameStart==true)
 	{
-		addChild(strike,1);
 		gameStart = false;
 	}
 	int NodeTag = 1;
@@ -259,7 +251,7 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 			node* Node= (node*)this->getChildByTag(tag);   
 			if (isTouchGetNode(Node,touch,tag))
 			{   
-				NodeTag = DealNodeAndGetTag(Node,strike);
+				NodeTag = DealNodeAndGetTag(Node);
 				node::start = false;
 				node::beforeTag = NodeTag;
 				return true;
@@ -282,7 +274,7 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 					node::a[node::beforeTag][node::currentTag]--;
 					node::a[node::currentTag][node::beforeTag]--;
 
-					NodeTag = DealNodeAndGetTag(Node,strike);
+					NodeTag = DealNodeAndGetTag(Node);
 					node::count++;
 					node *bnode =(node*)this->getChildByTag(node::beforeTag);
 					for(int i = 0;i<aHalfOfNumberOfSpecialNodes;i++)
@@ -322,7 +314,7 @@ void DrawMovie::ccTouchMoved(CCTouch* touch, CCEvent* event){
 				//将触摸点记录（即为i），a[i][j]=0,a[j][i]=0;触摸点开始闪，之前点停止闪烁"
 					node::a[node::beforeTag][node::currentTag]--;
 					node::a[node::currentTag][node::beforeTag]--;
-					NodeTag = DealNodeAndGetTag(Node,strike);
+					NodeTag = DealNodeAndGetTag(Node);
 					node::count++;
 					node *bnode =(node*)this->getChildByTag(node::beforeTag);
 					bnode->stopAllActions();
@@ -347,12 +339,7 @@ void DrawMovie::menuReInit(CCObject* pSender)
 	line::amount = 0;
 	line::count = 0;
 	line::beforeTag = 0;
-	this->strike=CCMotionStreak::create(5.0f,//尾巴持续的时间
-		4.0f,//尾巴大小
-		16.0f,//图片的大小
-		ccc3(255,255,0),//颜色
-		"node0.png"//使用的图片
-		);
+
 	arrayInit(node::a);
 	node::specialNodesInit();
 	if(node::beforeTag!=0)
