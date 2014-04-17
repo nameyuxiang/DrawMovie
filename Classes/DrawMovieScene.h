@@ -9,7 +9,7 @@ class DrawMovie : public cocos2d::CCLayer
 public:
 
 	CCMotionStreak* strike;
-	int DealNodeAndGetTag(node *Node,CCMotionStreak* strike);
+	int DealNodeAndGetTag(node *Node);
 
 	bool gameStart ;
 	void lineRespond(node *sprite,int NumberOfLines);

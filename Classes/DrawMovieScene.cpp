@@ -80,8 +80,9 @@ bool isTouchGetNode(node *sprite,CCTouch* touch,int tag)
 }
 
 //处理当前点，使它发光或跳跃
-int DrawMovie::DealNodeAndGetTag(node *Node,CCMotionStreak* strike)
+int DrawMovie::DealNodeAndGetTag(node *Node)
 {
+
 	bool isSpecilNode = false;
 	int NodeTag = Node->tag;
 	for(int i = 0;i<aHalfOfNumberOfSpecialNodes;i++)
@@ -98,19 +99,18 @@ int DrawMovie::DealNodeAndGetTag(node *Node,CCMotionStreak* strike)
 			}
 			Node->stopAllActions();
 			Node->NodeChange(0);
-			strike->setPosition(ccp(Node->GetNodeX(),Node->GetNodeY()));
 
 			node* otherNode = (node*)this->getChildByTag(node::specialNodes[i][otherj]);
 			otherNode->nodeRunAnimation();
 			node::specialNodesEnd(i);
 			otherNode->color = 0;
 			NodeTag = otherNode->tag;
-			strike->setPosition(ccp(otherNode->GetNodeX(),otherNode->GetNodeY()));
+			
 			}
 		}
-		if(!isSpecilNode){
+		if(!isSpecilNode)
+		{
 			Node->nodeRunAnimation();
-			strike->setPosition(ccp(Node->GetNodeX(),Node->GetNodeY()));
 		}
 		return NodeTag;
 }
@@ -140,14 +140,13 @@ bool DrawMovie::init()
 	{
 		return false;
 	}
-	gameStart = true;
 	this->strike=CCMotionStreak::create(3.0f,//尾巴持续的时间
 	2.0f,//尾巴大小
 	4.0f,//图片的大小
 	ccc3(255,255,0),//颜色
 	"node0.png"//使用的图片
 	);
-
+	addChild(strike,1);
 	arrayInit(node::a);
 	node::specialNodesInit();
 	CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
@@ -245,13 +244,8 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 	
 	CCLOG("ccTouchBegan");
 	strike->setPosition(touch->getLocation());
-	if(gameStart==true)
-	{
-		addChild(strike,1);
-		gameStart = false;
-	}
+	
 	int NodeTag = 1;
-	CCPoint point = touch->getLocation();
 	int tag =0;
 	if(node::start==true)
 	{
@@ -261,12 +255,14 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 			node* Node= (node*)this->getChildByTag(tag);   
 			if (isTouchGetNode(Node,touch,tag))
 			{   
-				NodeTag = DealNodeAndGetTag(Node,strike);
+				NodeTag = DealNodeAndGetTag(Node);
+				strike->setPosition(touch->getLocation());
 				node::start = false;
 				node::beforeTag = NodeTag;
-				return true;
+				return true;		
 			}
 		}
+		
 	}
 	else{
 		for (tag = 1;tag<=node::amount;tag++)     
@@ -284,7 +280,9 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 					node::a[node::beforeTag][node::currentTag]--;
 					node::a[node::currentTag][node::beforeTag]--;
 
-					NodeTag = DealNodeAndGetTag(Node,strike);
+					NodeTag = DealNodeAndGetTag(Node);
+					node * strikeNode = (node *)getChildByTag(NodeTag);
+					strike->setPosition(ccp(strikeNode->GetNodeX(),strikeNode->GetNodeY()));
 					node::count++;
 					node *bnode =(node*)this->getChildByTag(node::beforeTag);
 					for(int i = 0;i<aHalfOfNumberOfSpecialNodes;i++)
@@ -307,7 +305,24 @@ bool DrawMovie::ccTouchBegan(CCTouch* touch, CCEvent* event)
 void DrawMovie::ccTouchMoved(CCTouch* touch, CCEvent* event){
 	CCLOG("ccTouchMoved");
 	int tag ,NodeTag = 1;
-	if(node::start==false)
+	strike->setPosition(touch->getLocation());
+	if(node::start==true)
+	{
+		
+		for (tag = 1;tag<=node::amount;tag++)     
+		{   
+			node* Node= (node*)this->getChildByTag(tag);   
+			if (isTouchGetNode(Node,touch,tag))
+			{   
+				NodeTag = DealNodeAndGetTag(Node);
+				node * strikeNode = (node *)getChildByTag(NodeTag);
+				strike->setPosition(ccp(strikeNode->GetNodeX(),strikeNode->GetNodeY()));
+				node::start = false;
+				node::beforeTag = NodeTag;
+			}
+		}
+	}
+	else 
 	{
 		for (tag = 1;tag<=node::amount;tag++)     
 		{   
@@ -324,7 +339,9 @@ void DrawMovie::ccTouchMoved(CCTouch* touch, CCEvent* event){
 				//将触摸点记录（即为i），a[i][j]=0,a[j][i]=0;触摸点开始闪，之前点停止闪烁"
 					node::a[node::beforeTag][node::currentTag]--;
 					node::a[node::currentTag][node::beforeTag]--;
-					NodeTag = DealNodeAndGetTag(Node,strike);
+					NodeTag = DealNodeAndGetTag(Node);
+					node * strikeNode = (node *)getChildByTag(NodeTag);
+					strike->setPosition(ccp(strikeNode->GetNodeX(),strikeNode->GetNodeY()));
 					node::count++;
 					node *bnode =(node*)this->getChildByTag(node::beforeTag);
 					bnode->stopAllActions();
